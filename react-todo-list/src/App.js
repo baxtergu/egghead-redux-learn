@@ -5,9 +5,6 @@ import { connect } from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
 
-// todo list index
-let nextTodoId = 0;
-
 // function to filter out todo item that matchs the filter and return
 const getVisibleTodos = (todos, filter) => {
   switch (filter) {
@@ -22,6 +19,33 @@ const getVisibleTodos = (todos, filter) => {
   }
 };
 
+// ------------- Begin of Action Creator Defination -------------
+// todo list index
+let nextTodoId = 0;
+
+const addTodo = text => {
+  return {
+    type: 'ADD_TODO',
+    id: nextTodoId++,
+    text: text
+  };
+};
+
+const setVisibilityFilter = filter => {
+  return {
+    type: 'SET_VISIBILITY_FILTER',
+    filter
+  };
+};
+
+const toggleTodo = id => {
+  return {
+    type: 'TOGGLE_TODO',
+    id
+  };
+};
+// ------------- End of Action Creator Defination -------------
+
 // ------------------  Begin of Component Defination  ------------------
 
 let AddTodo = ({ dispatch }) => {
@@ -31,11 +55,7 @@ let AddTodo = ({ dispatch }) => {
       <input ref={node => (input = node)} />
       <button
         onClick={() => {
-          dispatch({
-            type: 'ADD_TODO',
-            id: nextTodoId++,
-            text: input.value
-          });
+          dispatch(addTodo(input.value));
           input.value = '';
         }}
       >
@@ -76,10 +96,7 @@ const mapStateToTodoListProps = state => {
 const mapDispatchToTodoListProps = dispatch => {
   return {
     onTodoClick: id => {
-      dispatch({
-        type: 'TOGGLE_TODO',
-        id
-      });
+      dispatch(toggleTodo(id));
     }
   };
 };
@@ -118,10 +135,7 @@ const mapStateToLinkProps = (state, ownProps) => {
 const mapDispatchToLinkProps = (dispatch, ownProps) => {
   return {
     onClick: () => {
-      dispatch({
-        type: 'SET_VISIBILITY_FILTER',
-        filter: ownProps.filter
-      });
+      dispatch(setVisibilityFilter(ownProps.filter));
     }
   };
 };
