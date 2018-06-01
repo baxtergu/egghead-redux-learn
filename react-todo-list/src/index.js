@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
+// import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
 import './index.css';
 import App from './App';
