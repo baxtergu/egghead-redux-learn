@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
 import logo from './logo.svg';
 import './App.css';
 
 // todo list index
 let nextTodoId = 0;
 
-// to filter out todo item that matchs the filter and return
+// function to filter out todo item that matchs the filter and return
 const getVisibleTodos = (todos, filter) => {
   switch (filter) {
     case 'SHOW_ALL':
@@ -21,7 +23,7 @@ const getVisibleTodos = (todos, filter) => {
 
 // ------------------  Begin of Component Defination  ------------------
 
-const AddTodo = ({ store }) => {
+const AddTodo = (props, { store }) => {
   let input;
   return (
     <div>
@@ -40,6 +42,9 @@ const AddTodo = ({ store }) => {
       </button>
     </div>
   );
+};
+AddTodo.contextTypes = {
+  store: PropTypes.object
 };
 
 // single Todo component - function defined component
@@ -63,7 +68,8 @@ const TodoList = ({ todos, onTodoClick }) => (
 
 class VisibleTodoList extends Component {
   componentDidMount() {
-    this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
+    const { store } = this.context;
+    this.unsubscribe = store.subscribe(() => this.forceUpdate());
   }
 
   componentWillUnmount() {
@@ -72,7 +78,7 @@ class VisibleTodoList extends Component {
 
   render() {
     const props = this.props;
-    const store = props.store;
+    const { store } = this.context;
     const state = store.getState();
     return (
       <TodoList
@@ -82,6 +88,9 @@ class VisibleTodoList extends Component {
     );
   }
 }
+VisibleTodoList.contextTypes = {
+  store: PropTypes.object
+};
 
 // Link component - function defined component
 const Link = ({ active, onClick, children }) => {
@@ -105,11 +114,10 @@ const Link = ({ active, onClick, children }) => {
 class FilterLink extends Component {
   render() {
     const props = this.props;
-    const store = props.store;
-    const state = props.store.getState();
+    const { store } = this.context;
     return (
       <Link
-        active={props.filter === state.visibilityFilter}
+        active={props.filter === store.getState().visibilityFilter}
         onClick={() => {
           store.dispatch({
             type: 'SET_VISIBILITY_FILTER',
@@ -123,7 +131,7 @@ class FilterLink extends Component {
   }
 
   componentDidMount() {
-    const store = this.props.store;
+    const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
   }
 
@@ -131,36 +139,32 @@ class FilterLink extends Component {
     this.unsubscribe();
   }
 }
+FilterLink.contextTypes = {
+  store: PropTypes.object
+};
 
 // Footer Component
 const Footer = ({ store }) => (
   <p>
-    Show:{' '}
-    <FilterLink filter="SHOW_ALL" store={store}>
-      All
-    </FilterLink>{' '}
-    <FilterLink filter="SHOW_ACTIVE" store={store}>
-      Active
-    </FilterLink>{' '}
-    <FilterLink filter="SHOW_COMPLETED" store={store}>
-      Completed
-    </FilterLink>
+    Show: <FilterLink filter="SHOW_ALL">All</FilterLink>{' '}
+    <FilterLink filter="SHOW_ACTIVE">Active</FilterLink>{' '}
+    <FilterLink filter="SHOW_COMPLETED">Completed</FilterLink>
   </p>
 );
 
 // TodoApp Entrance
-const TodoApp = ({ store }) => (
+const TodoApp = () => (
   <div>
-    <AddTodo store={store} />
-    <VisibleTodoList store={store} />
-    <Footer store={store} />
+    <AddTodo />
+    <VisibleTodoList />
+    <Footer />
   </div>
 );
 
 // subscribe the store in the root component
 class App extends Component {
   render() {
-    return <TodoApp store={this.props.store} />;
+    return <TodoApp />;
   }
 }
 
